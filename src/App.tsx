@@ -72,8 +72,6 @@ export default function App() {
     return <LoginPage onLogin={handleAuth} onSwitchToRegister={() => setAuthView('register')} />;
   }
 
-  const selectedLocalName = locals.find((l) => l.id === selectedLocal)?.name ?? '';
-
   return (
     <div className="min-h-screen">
       {/* Top bar */}
