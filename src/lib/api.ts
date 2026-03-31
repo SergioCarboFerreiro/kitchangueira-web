@@ -1,37 +1,27 @@
+import { getToken, logout } from './auth';
+import type { LoginResponse, UserInfo } from './auth';
+
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
-// Dev IDs from seed data
-export const DEV_TENANT_ID = '00000000-0000-0000-0000-000000000001';
-export const DEV_LOCAL_CENTRO = '00000000-0000-0000-0000-000000000010';
-export const DEV_WORKER_MANAGER = '00000000-0000-0000-0000-000000000101';
-
-interface ApiConfig {
-  tenantId: string;
-  workerId: string;
-  workerRole: string;
-}
-
-let config: ApiConfig = {
-  tenantId: DEV_TENANT_ID,
-  workerId: DEV_WORKER_MANAGER,
-  workerRole: 'manager',
-};
-
-export function setApiConfig(c: Partial<ApiConfig>) {
-  config = { ...config, ...c };
-}
-
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tenant-Id': config.tenantId,
-      'X-Worker-Id': config.workerId,
-      'X-Worker-Role': config.workerRole,
-      ...options.headers,
-    },
-  });
+  const token = getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options.headers as Record<string, string>,
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+
+  if (res.status === 401) {
+    logout();
+    window.location.reload();
+    throw new Error('Session expired');
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(err.error || res.statusText);
@@ -90,6 +80,25 @@ export interface ShiftRequest {
 
 // API calls
 export const api = {
+  // Auth (no token needed)
+  login: (username: string, password: string) =>
+    apiFetch<LoginResponse>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    }),
+
+  register: (data: {
+    name: string; email: string; username: string; password: string;
+    businessName: string; localName: string; localAddress?: string;
+  }) =>
+    apiFetch<{ token: string; user: UserInfo }>('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getMe: () => apiFetch<UserInfo>('/api/auth/me'),
+
+  // Data (token required)
   getLocals: () => apiFetch<LocalResponse[]>('/api/locals'),
   getWorkers: (localId?: string) =>
     apiFetch<WorkerResponse[]>(`/api/workers${localId ? `?localId=${localId}` : ''}`),

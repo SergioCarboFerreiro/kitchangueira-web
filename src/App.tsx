@@ -1,10 +1,20 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from './lib/api';
 import type { LocalResponse, WorkerResponse, RotaResponse } from './lib/api';
+import { isAuthenticated, getUser, logout } from './lib/auth';
+import type { UserInfo } from './lib/auth';
 import { getMonday, addWeeks, formatWeekRange, formatISO } from './lib/dates';
 import { RotaGrid } from './components/RotaGrid';
+import { LoginPage } from './components/LoginPage';
+import { RegisterPage } from './components/RegisterPage';
+
+type AuthView = 'login' | 'register';
 
 export default function App() {
+  const [authed, setAuthed] = useState(isAuthenticated());
+  const [authView, setAuthView] = useState<AuthView>('login');
+  const [user, setUser] = useState<UserInfo | null>(getUser());
+
   const [locals, setLocals] = useState<LocalResponse[]>([]);
   const [selectedLocal, setSelectedLocal] = useState<string>('');
   const [workers, setWorkers] = useState<WorkerResponse[]>([]);
@@ -13,17 +23,29 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load locals on mount
+  function handleAuth() {
+    setAuthed(true);
+    setUser(getUser());
+  }
+
+  function handleLogout() {
+    logout();
+    setAuthed(false);
+    setUser(null);
+  }
+
+  // Load locals on mount (when authed)
   useEffect(() => {
+    if (!authed) return;
     api.getLocals().then((data) => {
       setLocals(data);
       if (data.length > 0) setSelectedLocal(data[0].id);
     }).catch((e) => setError(e.message));
-  }, []);
+  }, [authed]);
 
   // Load workers + rota when local or week changes
   const loadData = useCallback(async () => {
-    if (!selectedLocal) return;
+    if (!selectedLocal || !authed) return;
     setLoading(true);
     setError(null);
     try {
@@ -38,9 +60,17 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [selectedLocal, weekStart]);
+  }, [selectedLocal, weekStart, authed]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Not authenticated — show login or register
+  if (!authed) {
+    if (authView === 'register') {
+      return <RegisterPage onRegister={handleAuth} onSwitchToLogin={() => setAuthView('login')} />;
+    }
+    return <LoginPage onLogin={handleAuth} onSwitchToRegister={() => setAuthView('register')} />;
+  }
 
   const selectedLocalName = locals.find((l) => l.id === selectedLocal)?.name ?? '';
 
@@ -65,9 +95,17 @@ export default function App() {
 
           <div className="flex-1" />
 
-          <span className="text-xs text-[var(--text-muted)]">
-            Manager · {selectedLocalName}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[var(--text-muted)]">
+              {user?.name} · {user?.role} · {user?.tenantName}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+            >
+              Salir
+            </button>
+          </div>
         </div>
       </header>
 
