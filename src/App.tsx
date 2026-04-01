@@ -7,6 +7,7 @@ import { getMonday, addWeeks, formatWeekRange, formatISO } from './lib/dates';
 import { RotaGrid } from './components/RotaGrid';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
+import { MyShiftsView } from './components/MyShiftsView';
 
 type AuthView = 'login' | 'register';
 
@@ -72,6 +73,28 @@ export default function App() {
     return <LoginPage onLogin={handleAuth} onSwitchToRegister={() => setAuthView('register')} />;
   }
 
+  const isManager = user?.role === 'owner' || user?.role === 'manager';
+
+  // Employee/Chef view — only their own shifts
+  if (!isManager) {
+    return (
+      <div className="min-h-screen">
+        <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur border-b border-[var(--border)] px-6 py-3">
+          <div className="flex items-center gap-4">
+            <h1 className="text-lg font-bold text-[var(--accent)]">KitchAngueira</h1>
+            <div className="flex-1" />
+            <span className="text-xs text-[var(--text-muted)]">{user?.name} · {user?.role}</span>
+            <button onClick={handleLogout} className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors">Salir</button>
+          </div>
+        </header>
+        <main className="p-6">
+          <MyShiftsView user={user!} />
+        </main>
+      </div>
+    );
+  }
+
+  // Manager/Owner view — full rota management
   return (
     <div className="min-h-screen">
       {/* Top bar */}
