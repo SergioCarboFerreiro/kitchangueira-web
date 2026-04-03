@@ -78,6 +78,51 @@ export interface ShiftRequest {
   notes?: string;
 }
 
+// Recipe types
+export interface RecipeListItem {
+  id: string;
+  name: string;
+  category: string;
+  portions: number;
+  prepTimeMinutes: number | null;
+  ingredientCount: number;
+  stepCount: number;
+}
+
+export interface RecipeResponse {
+  id: string;
+  name: string;
+  category: string;
+  portions: number;
+  prepTimeMinutes: number | null;
+  ingredients: IngredientResponse[];
+  steps: StepResponse[];
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface IngredientResponse {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+}
+
+export interface StepResponse {
+  id: string;
+  stepNumber: number;
+  description: string;
+}
+
+export interface RecipeRequest {
+  name: string;
+  category: string;
+  portions: number;
+  prepTimeMinutes?: number;
+  ingredients: { name: string; quantity: number; unit: string }[];
+  steps: { stepNumber: number; description: string }[];
+}
+
 // API calls
 export const api = {
   // Auth (no token needed)
@@ -119,4 +164,16 @@ export const api = {
     apiFetch<RotaResponse>(`/api/rotas/${localId}/week/${weekStart}/copy-previous`, {
       method: 'POST',
     }),
+
+  // Recipes
+  getRecipes: (category?: string) =>
+    apiFetch<RecipeListItem[]>(`/api/recipes${category ? `?category=${category}` : ''}`),
+  getRecipe: (id: string) => apiFetch<RecipeResponse>(`/api/recipes/${id}`),
+  getCategories: () => apiFetch<string[]>('/api/recipes/categories'),
+  createRecipe: (data: RecipeRequest) =>
+    apiFetch<RecipeResponse>('/api/recipes', { method: 'POST', body: JSON.stringify(data) }),
+  updateRecipe: (id: string, data: RecipeRequest) =>
+    apiFetch<RecipeResponse>(`/api/recipes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteRecipe: (id: string) =>
+    apiFetch<{ status: string }>(`/api/recipes/${id}`, { method: 'DELETE' }),
 };
