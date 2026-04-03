@@ -1,5 +1,14 @@
 import type { RecipeResponse } from '../lib/api';
 
+const CATEGORY_EMOJI: Record<string, string> = {
+  Entrantes: '🥗', Principales: '🍽️', Postres: '🍰', Bebidas: '🥤',
+  Guarniciones: '🥬', Salsas: '🫙',
+};
+const CATEGORY_COLOR: Record<string, string> = {
+  Entrantes: '#1a3a2a', Principales: '#2a1a1a', Postres: '#2a1a3a',
+  Bebidas: '#1a2a3a', Guarniciones: '#1a3a1a', Salsas: '#3a2a1a',
+};
+
 interface Props {
   recipe: RecipeResponse;
   isManager: boolean;
@@ -14,6 +23,17 @@ export function RecipeDetail({ recipe, isManager, onBack, onEdit, onDelete }: Pr
       <button onClick={onBack} className="text-sm text-[var(--text-muted)] hover:text-[var(--text)] mb-4">
         ← Volver a recetas
       </button>
+
+      {/* Recipe image or placeholder */}
+      <div className="mb-6">
+        {recipe.imageUrl ? (
+          <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-48 rounded-xl object-cover" />
+        ) : (
+          <div className="w-full h-36 rounded-xl flex items-center justify-center text-5xl" style={{ background: CATEGORY_COLOR[recipe.category] || '#1a1a2a' }}>
+            {CATEGORY_EMOJI[recipe.category] || '🍳'}
+          </div>
+        )}
+      </div>
 
       <div className="flex items-start justify-between mb-6">
         <div>

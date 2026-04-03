@@ -85,6 +85,7 @@ export interface RecipeListItem {
   category: string;
   portions: number;
   prepTimeMinutes: number | null;
+  imageUrl: string | null;
   ingredientCount: number;
   stepCount: number;
 }
@@ -95,6 +96,7 @@ export interface RecipeResponse {
   category: string;
   portions: number;
   prepTimeMinutes: number | null;
+  imageUrl: string | null;
   ingredients: IngredientResponse[];
   steps: StepResponse[];
   createdBy: string;
