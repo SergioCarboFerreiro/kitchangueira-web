@@ -167,11 +167,13 @@ export function StockPage({ localId, isManager, onBack }: Props) {
                   />
                 ) : (
                   <div className="text-right">
-                    <span className="text-sm font-semibold" style={{ color: colors.text }}>
-                      {item.currentQuantity}
-                    </span>
-                    <span className="text-xs text-[var(--text-muted)]">
-                      {' '}/{' '}{item.minQuantity} {item.unit}
+                    <div>
+                      <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                        {item.currentQuantity} {item.unit}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-[var(--text-muted)]">
+                      mín: {item.minQuantity} {item.unit}
                     </span>
                   </div>
                 )}
