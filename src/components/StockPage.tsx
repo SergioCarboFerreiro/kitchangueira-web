@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { StockDashboardItem } from '../lib/api';
 import { AddProductModal } from './AddProductModal';
+import { EditProductModal } from './EditProductModal';
 
 interface Props {
   localId: string;
@@ -22,6 +23,7 @@ export function StockPage({ localId, isManager, onBack }: Props) {
   const [countValues, setCountValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [editingItem, setEditingItem] = useState<StockDashboardItem | null>(null);
 
   async function loadDashboard() {
     setLoading(true);
@@ -140,7 +142,10 @@ export function StockPage({ localId, isManager, onBack }: Props) {
                 style={{ gridTemplateColumns: '1fr 2fr 100px' }}
               >
                 {/* Name + category */}
-                <div>
+                <div
+                  className={isManager && !counting ? 'cursor-pointer hover:text-[var(--accent)] transition-colors' : ''}
+                  onClick={() => { if (isManager && !counting) setEditingItem(item); }}
+                >
                   <div className="text-sm font-medium">{item.productName}</div>
                   <div className="text-[10px] text-[var(--text-muted)]">{item.category}</div>
                 </div>
@@ -191,6 +196,25 @@ export function StockPage({ localId, isManager, onBack }: Props) {
             );
           })}
         </div>
+      )}
+
+      {editingItem && (
+        <EditProductModal
+          item={editingItem}
+          localId={localId}
+          onSave={() => { setEditingItem(null); loadDashboard(); }}
+          onDelete={async () => {
+            const API_BASE = import.meta.env.VITE_API_URL || '';
+            const token = localStorage.getItem('kitchangueira_token');
+            await fetch(`${API_BASE}/api/products/${editingItem.productId}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` },
+            });
+            setEditingItem(null);
+            loadDashboard();
+          }}
+          onClose={() => setEditingItem(null)}
+        />
       )}
 
       {showAddProduct && (
