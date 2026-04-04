@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { StockDashboardItem } from '../lib/api';
+import { AddProductModal } from './AddProductModal';
 
 interface Props {
   localId: string;
@@ -20,6 +21,7 @@ export function StockPage({ localId, isManager, onBack }: Props) {
   const [counting, setCounting] = useState(false);
   const [countValues, setCountValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [showAddProduct, setShowAddProduct] = useState(false);
 
   async function loadDashboard() {
     setLoading(true);
@@ -63,12 +65,20 @@ export function StockPage({ localId, isManager, onBack }: Props) {
         <h2 className="text-xl font-semibold">Stock</h2>
         <div className="flex-1" />
         {isManager && !counting && (
-          <button
-            onClick={startCount}
-            className="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
-          >
-            Hacer conteo
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowAddProduct(true)}
+              className="px-3 py-2 text-sm rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--text-muted)]"
+            >
+              + Producto
+            </button>
+            <button
+              onClick={startCount}
+              className="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+            >
+              Hacer conteo
+            </button>
+          </div>
         )}
         {counting && (
           <div className="flex gap-2">
@@ -181,6 +191,14 @@ export function StockPage({ localId, isManager, onBack }: Props) {
             );
           })}
         </div>
+      )}
+
+      {showAddProduct && (
+        <AddProductModal
+          localId={localId}
+          onSave={() => { setShowAddProduct(false); loadDashboard(); }}
+          onClose={() => setShowAddProduct(false)}
+        />
       )}
     </div>
   );
