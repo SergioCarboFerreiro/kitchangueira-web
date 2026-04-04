@@ -30,7 +30,7 @@ export function AddShiftModal({ workerId, date, workerName, onSave, onClose, sav
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-[360px]" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-[90vw] max-w-[360px]" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-lg font-semibold mb-1">Añadir turno</h3>
         <p className="text-sm text-[var(--text-muted)] mb-4">{workerName} — {date}</p>
 

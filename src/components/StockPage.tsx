@@ -119,8 +119,8 @@ export function StockPage({ localId, isManager, onBack }: Props) {
         </div>
       ) : (
         <div className="space-y-2">
-          {/* Header */}
-          <div className="grid gap-4 px-4 py-2 text-xs text-[var(--text-muted)] font-semibold" style={{ gridTemplateColumns: '1fr 2fr 100px' }}>
+          {/* Header — hidden on mobile */}
+          <div className="hidden sm:grid gap-4 px-4 py-2 text-xs text-[var(--text-muted)] font-semibold" style={{ gridTemplateColumns: '1fr 2fr 100px' }}>
             <span>Producto</span>
             <span>Nivel</span>
             <span className="text-right">{counting ? 'Conteo' : 'Cantidad'}</span>
@@ -138,20 +138,33 @@ export function StockPage({ localId, isManager, onBack }: Props) {
             return (
               <div
                 key={item.productId}
-                className="grid gap-4 items-center px-4 py-3 rounded-xl bg-[var(--surface)] border border-[var(--border)]"
-                style={{ gridTemplateColumns: '1fr 2fr 100px' }}
+                className="flex flex-col sm:grid gap-2 sm:gap-4 items-start sm:items-center px-4 py-3 rounded-xl bg-[var(--surface)] border border-[var(--border)]"
+                style={{ gridTemplateColumns: '1fr 2fr 100px' } as React.CSSProperties}
               >
-                {/* Name + category */}
-                <div
-                  className={isManager && !counting ? 'cursor-pointer hover:text-[var(--accent)] transition-colors' : ''}
-                  onClick={() => { if (isManager && !counting) setEditingItem(item); }}
-                >
-                  <div className="text-sm font-medium">{item.productName}</div>
-                  <div className="text-[10px] text-[var(--text-muted)]">{item.category}</div>
+                {/* Name + category + quantity on mobile */}
+                <div className="flex items-center justify-between w-full sm:w-auto">
+                  <div
+                    className={isManager && !counting ? 'cursor-pointer hover:text-[var(--accent)] transition-colors' : ''}
+                    onClick={() => { if (isManager && !counting) setEditingItem(item); }}
+                  >
+                    <div className="text-sm font-medium">{item.productName}</div>
+                    <div className="text-[10px] text-[var(--text-muted)]">{item.category}</div>
+                  </div>
+                  {/* Quantity shown inline on mobile */}
+                  {!counting && (
+                    <div className="text-right sm:hidden">
+                      <div>
+                        <span className="text-sm font-semibold" style={{ color: colors.text }}>
+                          {item.currentQuantity} {item.unit}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-[var(--text-muted)]">mín: {item.minQuantity} {item.unit}</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Bar */}
-                <div>
+                {/* Bar — full width on mobile */}
+                <div className="w-full sm:w-auto">
                   <div className="relative h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
@@ -171,7 +184,7 @@ export function StockPage({ localId, isManager, onBack }: Props) {
                   )}
                 </div>
 
-                {/* Quantity or input */}
+                {/* Quantity or input — counting shows on all, quantity only on desktop */}
                 {counting ? (
                   <input
                     type="number"
@@ -181,7 +194,7 @@ export function StockPage({ localId, isManager, onBack }: Props) {
                     className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-sm text-right text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
                   />
                 ) : (
-                  <div className="text-right">
+                  <div className="text-right hidden sm:block">
                     <div>
                       <span className="text-sm font-semibold" style={{ color: colors.text }}>
                         {item.currentQuantity} {item.unit}

@@ -91,7 +91,7 @@ export default function App() {
             <button onClick={handleLogout} className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors">Salir</button>
           </div>
         </header>
-        <main className="p-6">
+        <main className="p-4 sm:p-6">
           <MyShiftsView user={user!} />
         </main>
       </div>
@@ -102,62 +102,51 @@ export default function App() {
   return (
     <div className="min-h-screen">
       {/* Top bar */}
-      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur border-b border-[var(--border)] px-6 py-3">
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-bold text-[var(--accent)]">KitchAngueira</h1>
-          <div className="h-5 w-px bg-[var(--border)]" />
+      <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur border-b border-[var(--border)] px-4 sm:px-6 py-3">
+        {/* Row 1: logo + local + user */}
+        <div className="flex items-center gap-3">
+          <h1 className="text-base sm:text-lg font-bold text-[var(--accent)]">KitchAngueira</h1>
+          <div className="h-5 w-px bg-[var(--border)] hidden sm:block" />
 
-          {/* Local selector */}
           <select
             value={selectedLocal}
             onChange={(e) => setSelectedLocal(e.target.value)}
-            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)] max-w-[140px] sm:max-w-none"
           >
             {locals.map((l) => (
               <option key={l.id} value={l.id}>{l.name}</option>
             ))}
           </select>
 
-          {/* Navigation tabs */}
-          <div className="flex gap-1 ml-4">
-            <button
-              onClick={() => setPage('rota')}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${page === 'rota' ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-semibold' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
-            >
-              Turnos
-            </button>
-            <button
-              onClick={() => setPage('recipes')}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${page === 'recipes' ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-semibold' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
-            >
-              Recetas
-            </button>
-            <button
-              onClick={() => setPage('stock')}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${page === 'stock' ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-semibold' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
-            >
-              Stock
-            </button>
-          </div>
-
           <div className="flex-1" />
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-[var(--text-muted)]">
-              {user?.name} · {user?.role} · {user?.tenantName}
-            </span>
+          <span className="text-[10px] sm:text-xs text-[var(--text-muted)] hidden sm:inline">
+            {user?.name} · {user?.role}
+          </span>
+          <button
+            onClick={handleLogout}
+            className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+          >
+            Salir
+          </button>
+        </div>
+
+        {/* Row 2: navigation tabs */}
+        <div className="flex gap-1 mt-2">
+          {(['rota', 'recipes', 'stock'] as const).map((tab) => (
             <button
-              onClick={handleLogout}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+              key={tab}
+              onClick={() => setPage(tab)}
+              className={`flex-1 sm:flex-none px-3 py-1.5 text-xs rounded-lg transition-colors ${page === tab ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-semibold' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
             >
-              Salir
+              {tab === 'rota' ? 'Turnos' : tab === 'recipes' ? 'Recetas' : 'Stock'}
             </button>
-          </div>
+          ))}
         </div>
       </header>
 
       {/* Content */}
-      <main className="p-6">
+      <main className="p-4 sm:p-6">
         {page === 'stock' ? (
           <StockPage localId={selectedLocal} isManager={isManager} onBack={() => setPage('rota')} />
         ) : page === 'recipes' ? (
