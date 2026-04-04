@@ -125,6 +125,27 @@ export interface RecipeRequest {
   steps: { stepNumber: number; description: string }[];
 }
 
+// Stock types
+export interface StockDashboardItem {
+  productId: string;
+  productName: string;
+  category: string;
+  unit: string;
+  currentQuantity: number;
+  minQuantity: number;
+  maxQuantity: number | null;
+  status: 'ok' | 'low' | 'critical';
+  lastCountAt: string | null;
+  lastCountBy: string | null;
+}
+
+export interface ProductResponse {
+  id: string;
+  name: string;
+  category: string;
+  unit: string;
+}
+
 // API calls
 export const api = {
   // Auth (no token needed)
@@ -178,4 +199,19 @@ export const api = {
     apiFetch<RecipeResponse>(`/api/recipes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteRecipe: (id: string) =>
     apiFetch<{ status: string }>(`/api/recipes/${id}`, { method: 'DELETE' }),
+
+  // Stock
+  getStockDashboard: (localId: string) =>
+    apiFetch<StockDashboardItem[]>(`/api/stock/${localId}/dashboard`),
+  getStockAlerts: (localId: string) =>
+    apiFetch<StockDashboardItem[]>(`/api/stock/${localId}/alerts`),
+  submitStockCount: (localId: string, items: { productId: string; quantity: number }[], notes?: string) =>
+    apiFetch<unknown>(`/api/stock/${localId}/count`, {
+      method: 'POST',
+      body: JSON.stringify({ items, notes }),
+    }),
+  getProducts: (category?: string) =>
+    apiFetch<ProductResponse[]>(`/api/products${category ? `?category=${category}` : ''}`),
+  createProduct: (data: { name: string; category: string; unit: string }) =>
+    apiFetch<ProductResponse>('/api/products', { method: 'POST', body: JSON.stringify(data) }),
 };

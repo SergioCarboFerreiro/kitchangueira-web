@@ -9,9 +9,10 @@ import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 import { MyShiftsView } from './components/MyShiftsView';
 import { RecipesPage } from './components/RecipesPage';
+import { StockPage } from './components/StockPage';
 
 type AuthView = 'login' | 'register';
-type Page = 'rota' | 'recipes';
+type Page = 'rota' | 'recipes' | 'stock';
 
 export default function App() {
   const [authed, setAuthed] = useState(isAuthenticated());
@@ -131,6 +132,12 @@ export default function App() {
             >
               Recetas
             </button>
+            <button
+              onClick={() => setPage('stock')}
+              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${page === 'stock' ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-semibold' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
+            >
+              Stock
+            </button>
           </div>
 
           <div className="flex-1" />
@@ -151,7 +158,9 @@ export default function App() {
 
       {/* Content */}
       <main className="p-6">
-        {page === 'recipes' ? (
+        {page === 'stock' ? (
+          <StockPage localId={selectedLocal} isManager={isManager} onBack={() => setPage('rota')} />
+        ) : page === 'recipes' ? (
           <RecipesPage isManager={isManager} onBack={() => setPage('rota')} />
         ) : (
           <>
