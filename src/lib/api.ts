@@ -188,6 +188,46 @@ export interface OrderLineResponse {
   notes: string | null;
 }
 
+// Waste types
+export interface WasteResponse {
+  id: string;
+  productName: string;
+  quantity: number;
+  unit: string;
+  reason: string;
+  reasonLabel: string;
+  notes: string | null;
+  registeredBy: string;
+  registeredAt: string;
+}
+
+export interface WasteSummary {
+  totalEntries: number;
+  byReason: { reason: string; reasonLabel: string; totalQuantity: number; entryCount: number }[];
+  byProduct: { productName: string; unit: string; totalQuantity: number; topReason: string }[];
+}
+
+// Temperature types
+export interface TempZoneResponse {
+  id: string;
+  name: string;
+  zoneType: string;
+  zoneTypeLabel: string;
+  minTemp: number;
+  maxTemp: number;
+  lastLog: TempLogResponse | null;
+}
+
+export interface TempLogResponse {
+  id: string;
+  zoneName: string;
+  temperature: number;
+  inRange: boolean;
+  notes: string | null;
+  registeredBy: string;
+  registeredAt: string;
+}
+
 // API calls
 export const api = {
   // Auth (no token needed)
@@ -271,6 +311,30 @@ export const api = {
     apiFetch<SupplierResponse>(`/api/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteSupplier: (id: string) =>
     apiFetch<{ status: string }>(`/api/suppliers/${id}`, { method: 'DELETE' }),
+
+  // Waste
+  registerWaste: (localId: string, data: { productId: string; quantity: number; reason: string; notes?: string }) =>
+    apiFetch<WasteResponse>(`/api/waste/${localId}`, { method: 'POST', body: JSON.stringify(data) }),
+  getWaste: (localId: string, from?: string, to?: string) => {
+    const params = new URLSearchParams();
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    const qs = params.toString();
+    return apiFetch<WasteResponse[]>(`/api/waste/${localId}${qs ? `?${qs}` : ''}`);
+  },
+  getWasteSummary: (localId: string) => apiFetch<WasteSummary>(`/api/waste/${localId}/summary`),
+
+  // Temperature
+  getTempZones: (localId: string) => apiFetch<TempZoneResponse[]>(`/api/temperatures/${localId}/zones`),
+  createTempZone: (localId: string, data: { name: string; zoneType: string; minTemp: number; maxTemp: number }) =>
+    apiFetch<TempZoneResponse>(`/api/temperatures/${localId}/zones`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteTempZone: (zoneId: string) =>
+    apiFetch<{ status: string }>(`/api/temperatures/zones/${zoneId}`, { method: 'DELETE' }),
+  logTemperature: (zoneId: string, data: { temperature: number; notes?: string }) =>
+    apiFetch<TempLogResponse>(`/api/temperatures/zones/${zoneId}/log`, { method: 'POST', body: JSON.stringify(data) }),
+  batchLogTemperature: (logs: { zoneId: string; temperature: number; notes?: string }[]) =>
+    apiFetch<TempLogResponse[]>('/api/temperatures/batch-log', { method: 'POST', body: JSON.stringify({ logs }) }),
+  getTempHistory: (zoneId: string) => apiFetch<TempLogResponse[]>(`/api/temperatures/zones/${zoneId}/history`),
 
   // Orders
   getOrders: (localId?: string, status?: string) => {

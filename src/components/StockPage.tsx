@@ -7,7 +7,7 @@ import { EditProductModal } from './EditProductModal';
 interface Props {
   localId: string;
   isManager: boolean;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 const STATUS_COLORS = {
@@ -63,8 +63,8 @@ export function StockPage({ localId, isManager, onBack }: Props) {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="text-sm text-[var(--text-muted)] hover:text-[var(--text)]">← Volver</button>
-        <h2 className="text-xl font-semibold">Stock</h2>
+        {onBack && <button onClick={onBack} className="text-sm text-[var(--text-muted)] hover:text-[var(--text)]">← Volver</button>}
+        <h3 className="text-lg font-semibold">Stock</h3>
         <div className="flex-1" />
         {isManager && !counting && (
           <div className="flex gap-2">
