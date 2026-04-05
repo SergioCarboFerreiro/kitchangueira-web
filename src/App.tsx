@@ -10,9 +10,10 @@ import { RegisterPage } from './components/RegisterPage';
 import { MyShiftsView } from './components/MyShiftsView';
 import { RecipesPage } from './components/RecipesPage';
 import { StockPage } from './components/StockPage';
+import { OrdersPage } from './components/OrdersPage';
 
 type AuthView = 'login' | 'register';
-type Page = 'rota' | 'recipes' | 'stock';
+type Page = 'rota' | 'recipes' | 'stock' | 'orders';
 
 export default function App() {
   const [authed, setAuthed] = useState(isAuthenticated());
@@ -133,13 +134,13 @@ export default function App() {
 
         {/* Row 2: navigation tabs */}
         <div className="flex gap-1 mt-2">
-          {(['rota', 'recipes', 'stock'] as const).map((tab) => (
+          {(['rota', 'recipes', 'stock', 'orders'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setPage(tab)}
               className={`flex-1 sm:flex-none px-3 py-1.5 text-xs rounded-lg transition-colors ${page === tab ? 'bg-[var(--accent)]/15 text-[var(--accent)] font-semibold' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
             >
-              {tab === 'rota' ? 'Turnos' : tab === 'recipes' ? 'Recetas' : 'Stock'}
+              {{ rota: 'Turnos', recipes: 'Recetas', stock: 'Stock', orders: 'Pedidos' }[tab]}
             </button>
           ))}
         </div>
@@ -147,7 +148,9 @@ export default function App() {
 
       {/* Content */}
       <main className="p-4 sm:p-6">
-        {page === 'stock' ? (
+        {page === 'orders' ? (
+          <OrdersPage localId={selectedLocal} onBack={() => setPage('rota')} />
+        ) : page === 'stock' ? (
           <StockPage localId={selectedLocal} isManager={isManager} onBack={() => setPage('rota')} />
         ) : page === 'recipes' ? (
           <RecipesPage isManager={isManager} onBack={() => setPage('rota')} />

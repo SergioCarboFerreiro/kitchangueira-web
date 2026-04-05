@@ -146,6 +146,48 @@ export interface ProductResponse {
   unit: string;
 }
 
+// Order types
+export interface SupplierResponse {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+  orderCount: number;
+}
+
+export interface OrderListItem {
+  id: string;
+  supplierName: string;
+  localName: string;
+  status: string;
+  lineCount: number;
+  createdAt: string;
+  sentAt: string | null;
+}
+
+export interface OrderResponse {
+  id: string;
+  supplierName: string;
+  supplierEmail: string | null;
+  localName: string;
+  status: string;
+  notes: string | null;
+  lines: OrderLineResponse[];
+  createdBy: string;
+  createdAt: string;
+  sentAt: string | null;
+}
+
+export interface OrderLineResponse {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  unit: string;
+  notes: string | null;
+}
+
 // API calls
 export const api = {
   // Auth (no token needed)
@@ -214,4 +256,27 @@ export const api = {
     apiFetch<ProductResponse[]>(`/api/products${category ? `?category=${category}` : ''}`),
   createProduct: (data: { name: string; category: string; unit: string }) =>
     apiFetch<ProductResponse>('/api/products', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Suppliers
+  getSuppliers: () => apiFetch<SupplierResponse[]>('/api/suppliers'),
+  createSupplier: (data: { name: string; email?: string; phone?: string; notes?: string }) =>
+    apiFetch<SupplierResponse>('/api/suppliers', { method: 'POST', body: JSON.stringify(data) }),
+  updateSupplier: (id: string, data: { name: string; email?: string; phone?: string; notes?: string }) =>
+    apiFetch<SupplierResponse>(`/api/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteSupplier: (id: string) =>
+    apiFetch<{ status: string }>(`/api/suppliers/${id}`, { method: 'DELETE' }),
+
+  // Orders
+  getOrders: (localId?: string, status?: string) => {
+    const params = new URLSearchParams();
+    if (localId) params.set('localId', localId);
+    if (status) params.set('status', status);
+    const qs = params.toString();
+    return apiFetch<OrderListItem[]>(`/api/orders${qs ? `?${qs}` : ''}`);
+  },
+  getOrder: (id: string) => apiFetch<OrderResponse>(`/api/orders/${id}`),
+  createOrder: (localId: string, data: { supplierId: string; lines: { productId: string; quantity: number; unit: string; notes?: string }[]; notes?: string }) =>
+    apiFetch<OrderResponse>(`/api/orders/${localId}`, { method: 'POST', body: JSON.stringify(data) }),
+  sendOrder: (id: string) => apiFetch<{ status: string }>(`/api/orders/${id}/send`, { method: 'POST' }),
+  deliverOrder: (id: string) => apiFetch<{ status: string }>(`/api/orders/${id}/deliver`, { method: 'POST' }),
 };
