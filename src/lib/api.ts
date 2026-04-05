@@ -212,6 +212,12 @@ export const api = {
   getLocals: () => apiFetch<LocalResponse[]>('/api/locals'),
   getWorkers: (localId?: string) =>
     apiFetch<WorkerResponse[]>(`/api/workers${localId ? `?localId=${localId}` : ''}`),
+  createWorker: (data: { name: string; username: string; password: string; role: string; localIds: string[]; email?: string }) =>
+    apiFetch<unknown>('/api/workers', { method: 'POST', body: JSON.stringify(data) }),
+  deleteWorker: (id: string) =>
+    apiFetch<{ status: string }>(`/api/workers/${id}`, { method: 'DELETE' }),
+  resetWorkerPassword: (id: string, newPassword: string) =>
+    apiFetch<{ status: string }>(`/api/workers/${id}/reset-password`, { method: 'POST', body: JSON.stringify({ newPassword }) }),
 
   getRota: (localId: string, weekStart: string) =>
     apiFetch<RotaResponse>(`/api/rotas/${localId}/week/${weekStart}`),
